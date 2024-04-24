@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fullscreen Background Image</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'CustomFont', Arial, sans-serif; /* Die benutzerdefinierte Schriftart */
+            user-select: none;
+            overflow-x: hidden; /* Horizontales Scrollen verbergen */
+            overflow-y: hidden; /* Vertikales Scrollen verbergen */
+            background-color: black; /* Hintergrundfarbe immer schwarz */
+        }
+
+        .left-line,
+        .right-line {
+            position: fixed;
+            width: 2px; /* Breite der Linie */
+            height: 100vh; /* Höhe der Linie */
+            background-color: white;
+            top: 0;
+        }
+
+        .left-line {
+            left: 0;
+            transform: rotate(90deg); /* Rotation um 90 Grad */
+            transform-origin: top left; /* Ursprung der Rotation */
+        }
+
+        .right-line {
+            right: 0;
+            transform: rotate(-90deg); /* Rotation um -90 Grad */
+            transform-origin: top right; /* Ursprung der Rotation */
+        }
+
+        .container {
+            position: fixed;
+            top: 0; /* Position direkt unter der Linie */
+            width: 100%;
+            height: 100vh; /* Füllt den gesamten Bildschirm */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; /* Verhindert das Scrollen des Containers */
+        }
+
+        .overlay {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: -1;
+            transition: top 0.3s; /* Animation für die Position */
+        }
+
+        .container.clicked .overlay {
+            top: 0;
+        }
+
+        .white-text {
+            color: white;
+            font-size: 50px;
+            font-weight: bold;
+            text-align: center; /* Zentrierte Textausrichtung */
+            z-index: 1; /* Stellt sicher, dass der Text über dem Hintergrundbild liegt */
+            transition: transform 2.0s; /* Animation für das Verschieben nach oben */
+        }
+
+        .container.clicked .white-text {
+            transform: translateY(-900%); /* Verschieben des Textes nach oben, außerhalb des sichtbaren Bereichs */
+        }
+
+        .scroll-down {
+            position: absolute;
+            bottom: 20px; /* Abstand zum unteren Rand */
+            left: 50%; /* Zentrierte Position horizontal */
+            transform: translateX(-50%);
+            width: 50px; /* Breite des Bildes */
+            height: auto; /* Automatische Höhe gemäß Seitenverhältnis */
+            transition: transform 0.3s; /* Übergangseffekt für die Größe */
+            transform-origin: top left; /* Ursprung der Transformation */
+        }
+
+        .scroll-down:hover {
+            transform: translateX(-50%) scale(1.1); /* Vergrößere das Bild um 10% und behalte die Position bei */
+        }
+
+        .logo {
+            position: absolute;
+            top: 20px; /* Abstand zum oberen Rand */
+            left: 20px; /* Abstand zum linken Rand */
+            width: 100px; /* Breite des Logos */
+            height: auto; /* Automatische Höhe gemäß Seitenverhältnis */
+        }
+
+        .hallo-text {
+            position: absolute;
+            bottom: -100px; /* Startposition außerhalb des sichtbaren Bereichs unten */
+            left: 50%; /* Zentrierte Position horizontal */
+            transform: translateX(-50%);
+            color: white;
+            font-size: 30px;
+            font-weight: bold;
+            transition: bottom 1.5s ease-in-out; /* Animationsdauer und -art */
+            display: flex;
+            align-items: center;
+            gap: 20px; /* Abstand zwischen den Sätzen */
+        }
+
+        .container.clicked .hallo-text {
+            bottom: 50%; /* Endposition in der Mitte */
+        }
+
+        .hallo-text span {
+            padding: 10px 20px; /* Innenabstand des Rahmens */
+            background-color: transparent; /* Transparenter Hintergrund */
+            border: 2px solid white; /* 2px dicker Rahmen */
+            border-radius: 20px; /* Abgerundete Ecken */
+            transition: background-color 0.3s, border-color 0.3s; /* Übergangseffekt */
+        }
+
+        .hallo-text span:hover {
+            background-color: white; /* Hintergrundfarbe beim Hover */
+            color: black; /* Textfarbe beim Hover */
+            border-color: transparent; /* Rahmenfarbe beim Hover */
+        }
+
+        .disable-hover {
+            pointer-events: none;
+        }
+
+        @font-face {
+            font-family: 'CustomFont'; /* Der Name der benutzerdefinierten Schriftart */
+            src: url('font.otf') format('opentype'); /* Der Name der benutzerdefinierten Schriftart */
+        }
+    </style>
+</head>
+<body>
+    <div class="left-line"></div>
+    <div class="right-line"></div>
+    <div class="container">
+        <div class="overlay"></div>
+        <div class="white-text" id="fixedText">Embrace the power of AI, where innovation meets intelligence.</div>
+        <img src="logo.png" alt="Logo" class="logo">
+        <img src="scroll-down.png" alt="Scroll Down" class="scroll-down" onclick="toggleAnimation()">
+        <div class="hallo-text">
+            <span class="disable-hover">What is GnoxAI</span>
+            <span class="disable-hover">Who am I?</span>
+        </div>
+    </div>
+    <script>
+        var isAnimating = false;
+
+        // Funktion zum Überprüfen, ob die mittleren Boxen nicht mehr animiert werden
+        function checkAnimation() {
+            var middleBox = document.querySelector('.container.clicked');
+            var halloTextSpans = document.querySelectorAll('.hallo-text span');
+
+            if (middleBox && !isAnimating) {
+                halloTextSpans.forEach(span => {
+                    span.classList.remove('disable-hover');
+                });
+            } else {
+                halloTextSpans.forEach(span => {
+                    span.classList.add('disable-hover');
+                });
+            }
+        }
+
+        function toggleAnimation() {
+            var container = document.querySelector('.container');
+            container.classList.toggle('clicked');
+            isAnimating = true;
+
+            setTimeout(function() {
+                isAnimating = false;
+                checkAnimation();
+            }, 1500); // Adjust timing based on your animation duration
+        }
+
+        // Initial check
+        checkAnimation();
+    </script>
+</body>
+</html>
